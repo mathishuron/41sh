@@ -21,7 +21,7 @@ my_ssize_t my_write(int fd, const void *str, my_size_t len)
 int	my_putchar(int c)
 {
 	my_write(1, &c, 1);
-	return (c);
+	return (1);
 }
 
 int	my_puts(const char *str)
@@ -29,29 +29,36 @@ int	my_puts(const char *str)
 	int	i;
 
 	i = 0;
-	while (*(str + i) != '\0')
+	while (str[i] != '\0')
 	{
-		my_putchar(*(str + i));
+		my_putchar(str[i]);
 		i++;
 	}
-	my_putchar('\n');
-	return (0);
+	// my_putchar('\n'); Removed for printf exercice
+	return (i);
 }
 
-void	recurse_display_putnbr(int n)
+void	recurse_display_putnbr(int n, int *counter)
 {
 	if (n <= -10)
-		recurse_display_putnbr(n / 10);
+		recurse_display_putnbr(n / 10, counter);
 	my_putchar('0' - n % 10);
+	*counter = *counter + 1;
 }
 
-void	my_putnbr(int n)
+int	my_putnbr(int n)
 {
+	int	i;
+
+	i = 0;
 	if (n >= 0)
 		n *= -1;
 	else
-		my_putchar('-');
-	recurse_display_putnbr(n);
+	{
+		i += my_putchar('-');
+	}
+	recurse_display_putnbr(n, &i);
+	return (i);
 }
 
 int	my_strcmp(const char *s1, const char *s2)
@@ -175,4 +182,47 @@ void my_strncpy(char *src, char *dst, int n)
 			"D" (status)
 			: "rcx", "r11", "memory");
 	__builtin_unreachable();
+}
+
+int my_printf(const char *format, ...)
+{
+	int	count;
+	int	i;
+
+	count = 0;
+	i = 0;
+	while (format[i] != '\0')
+	{
+		if (format[i] == '%')
+		{
+			if (format[i + 1] == 's')
+			{
+				count += my_puts("Bondour");
+				i = i + 2;
+			}
+			else if (format[i + 1] == 'd')
+			{
+				count += my_putnbr(44444);
+				i = i + 2;
+			}
+			else if (format[i + 1] == 'c')
+			{
+				count += my_putchar('X');
+				i = i + 2;
+			}
+			else
+			{
+				my_putchar('%');
+				count++;
+				i++;
+			}
+		}
+		else
+		{
+			my_putchar(format[i]);
+			count++;
+			i++;
+		}
+	}
+	return (count);
 }

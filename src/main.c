@@ -2,8 +2,9 @@
 
 int	main(int argc, char **argv, char **envp)
 {
-
-	exit(41);
-
+	int	a;
+	
+	a = my_printf("AAAAA%");
+	my_putnbr(a);
 	return (0);
 }
