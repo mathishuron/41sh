@@ -168,11 +168,11 @@ void my_strncpy(char *src, char *dst, int n)
 
 [[noreturn]] void exit(int status)
 {
-        __asm__ volatile(
-			"mov $60, %%rax\n"
-			"mov %1, %%rdi\n"
-			"syscall\n"
-			: "r"((int)status)
-			: "rdi");
+	__asm__ volatile(
+			"syscall"
+			:
+			: "a"(60),
+			"D" (status)
+			: "rcx", "r11", "memory");
 	__builtin_unreachable();
 }

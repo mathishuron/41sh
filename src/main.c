@@ -3,7 +3,7 @@
 int	main(int argc, char **argv, char **envp)
 {
 
-	exit(400);
+	exit(41);
 
 	return (0);
 }
