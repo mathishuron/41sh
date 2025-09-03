@@ -1,5 +1,7 @@
 #include "../include/libc/libc.h"
 
+#define BUFFER_LEN 3
+
 my_ssize_t my_write(int fd, const void *str, my_size_t len)
 {
 	long ret;
@@ -90,20 +92,87 @@ my_ssize_t	my_read(int fd, void *buf, my_size_t len)
     return ret;
 }
 
-my_ssize_t	my_getline(char **lineptr, my_size_t *n, int fd)
+int	my_pos(char c, char *buffer, int n)
 {
-	my_ssize_t i;
+	int	i;
 
 	i = 0;
-	while (read(fd, *lineptr + i, 1) != 0 && i < *n - 1)
+	while (i < n)
 	{
-		if (lineptr[0][i] == '\n')
-		{
-			i++;
-			break;
-		}
+		if (buffer[i] == c)
+			return (i);
 		i++;
 	}
-	*lineptr[i] = '\0';
-	return (i);
+	return (-1);
+}
+
+void my_strncpy(char *src, char *dst, int n)
+{
+	int	i;
+
+	i = 0;
+	while (i < n)
+	{
+		dst[i] = src[i];
+		i++;
+	}
+}
+
+//my_ssize_t	my_getline(char **lineptr, my_size_t *n, int fd)
+//{
+//	my_ssize_t	i;
+//	my_ssize_t	count;
+//	int		pos;
+//	char		*temp_dest;
+//
+//	count = 0;
+//	i = my_read(fd, *lineptr + count, BUFFER_LEN);
+//	count += i;
+//
+//	while (i != 0)
+//	{
+//		pos = my_pos('\n', *lineptr, count); 
+//		if (pos >= 0)
+//		{
+//			if (pos == *n - 1) //manage newline at last position
+//			{
+//				temp_dest = (char *)malloc((*n + 1) * sizeof(char)); //replace with custom alloc
+//				my_strncpy(*lineptr,temp_dest, *n);
+//				*n += 1;
+//				free(*lineptr); // replace
+//				*lineptr = temp_dest;
+//
+//			}
+//			lineptr[0][pos + 1] = '\0';
+//			break;
+//		}
+//		else if (my_pos('\0', *lineptr, count) >= 0)
+//			break;
+//		else if (count < *n)
+//			break;
+//		else
+//		{
+//			temp_dest = (char *)malloc((*n + BUFFER_LEN) * sizeof(char)); //replace
+//			my_strncpy(*lineptr,temp_dest, *n);
+//			*n += BUFFER_LEN;
+//			free(*lineptr); //replace
+//			*lineptr = temp_dest;
+//			i = my_read(fd, *lineptr + count, BUFFER_LEN);
+//			count += i;
+//		}
+//	}
+//	if (count < *n) //EOF
+//		lineptr[0][count] = '\0';
+//	return (count);
+//}
+
+[[noreturn]] void exit(int status)
+{
+        __asm__ volatile(
+			"mov $60, %%rax\n"
+			"mov %1, %%rdi\n"
+			"syscall\n"
+			: "r"((int)status)
+			: "rdi");
+	__builtin_unreachable();
 }
