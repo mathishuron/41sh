@@ -229,3 +229,40 @@ int my_printf(const char *format, ...)
 	__builtin_va_end(args);
 	return (count);
 }
+
+static void *program_break = 0;
+
+void	*my_sbrk(int increment)
+{
+	void	*old_brk;
+
+	if (program_break == 0)
+	{
+		__asm__ volatile (
+				"mov $12, %%rax\n"
+				"xor %%rdi, %%rdi\n"
+				"syscall\n"
+				: "=a"(program_break)
+				:
+				: "rdi"
+				);
+	}
+
+	old_brk = program_break;
+
+	__asm__ volatile (
+			"mov $12, %%rax\n"
+			"syscall\n"
+			:
+			: "D"(increment)
+			:
+			);
+	program_break += increment;
+	return (old_brk);
+}
+
+void *my_malloc(my_size_t size)
+{
+	my_sbrk(size);
+	return (my_sbrk(0));
+}
