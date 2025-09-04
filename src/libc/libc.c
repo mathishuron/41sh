@@ -169,7 +169,7 @@ void my_strncpy(char *src, char *dst, int n)
 //		}
 //	}
 //	if (count < *n) //EOF
-//		lineptr[0][count] = '\0';
+//		lineptr[0][count] = '\0'; //check if not count - 1 actually ?
 //	return (count);
 //}
 
