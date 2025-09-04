@@ -188,26 +188,28 @@ int my_printf(const char *format, ...)
 {
 	int	count;
 	int	i;
+	__builtin_va_list args;
 
 	count = 0;
 	i = 0;
+	__builtin_va_start(args, format);
 	while (format[i] != '\0')
 	{
 		if (format[i] == '%')
 		{
 			if (format[i + 1] == 's')
 			{
-				count += my_puts("Bondour");
+				count += my_puts(__builtin_va_arg(args, char *));
 				i = i + 2;
 			}
 			else if (format[i + 1] == 'd')
 			{
-				count += my_putnbr(44444);
+				count += my_putnbr(__builtin_va_arg(args, int));
 				i = i + 2;
 			}
 			else if (format[i + 1] == 'c')
 			{
-				count += my_putchar('X');
+				count += my_putchar(__builtin_va_arg(args, int));
 				i = i + 2;
 			}
 			else
@@ -224,5 +226,6 @@ int my_printf(const char *format, ...)
 			i++;
 		}
 	}
+	__builtin_va_end(args);
 	return (count);
 }
