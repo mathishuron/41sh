@@ -125,53 +125,53 @@ void my_strncpy(char *src, char *dst, int n)
 	}
 }
 
-//my_ssize_t	my_getline(char **lineptr, my_size_t *n, int fd)
-//{
-//	my_ssize_t	i;
-//	my_ssize_t	count;
-//	int		pos;
-//	char		*temp_dest;
-//
-//	count = 0;
-//	i = my_read(fd, *lineptr + count, BUFFER_LEN);
-//	count += i;
-//
-//	while (i != 0)
-//	{
-//		pos = my_pos('\n', *lineptr, count); 
-//		if (pos >= 0)
-//		{
-//			if (pos == *n - 1) //manage newline at last position
-//			{
-//				temp_dest = (char *)malloc((*n + 1) * sizeof(char)); //replace with custom alloc
-//				my_strncpy(*lineptr,temp_dest, *n);
-//				*n += 1;
-//				free(*lineptr); // replace
-//				*lineptr = temp_dest;
-//
-//			}
-//			lineptr[0][pos + 1] = '\0';
-//			break;
-//		}
-//		else if (my_pos('\0', *lineptr, count) >= 0)
-//			break;
-//		else if (count < *n)
-//			break;
-//		else
-//		{
-//			temp_dest = (char *)malloc((*n + BUFFER_LEN) * sizeof(char)); //replace
-//			my_strncpy(*lineptr,temp_dest, *n);
-//			*n += BUFFER_LEN;
-//			free(*lineptr); //replace
-//			*lineptr = temp_dest;
-//			i = my_read(fd, *lineptr + count, BUFFER_LEN);
-//			count += i;
-//		}
-//	}
-//	if (count < *n) //EOF
-//		lineptr[0][count] = '\0'; //check if not count - 1 actually ?
-//	return (count);
-//}
+my_ssize_t	my_getline(char **lineptr, my_size_t *n, int fd)
+{
+	my_ssize_t	i;
+	my_ssize_t	count;
+	int		pos;
+	char		*temp_dest;
+
+	count = 0;
+	i = my_read(fd, *lineptr + count, BUFFER_LEN);
+	count += i;
+
+	while (i != 0)
+	{
+		pos = my_pos('\n', *lineptr, count); 
+		if (pos >= 0)
+		{
+			if (pos == *n - 1) //manage newline at last position
+			{
+				temp_dest = (char *)my_malloc((*n + 1) * sizeof(char));
+				my_strncpy(*lineptr,temp_dest, *n);
+				*n += 1;
+				// don't forget to free(*lineptr);
+				*lineptr = temp_dest;
+
+			}
+			lineptr[0][pos + 1] = '\0'; // not pos ? to check
+			break;
+		}
+		else if (my_pos('\0', *lineptr, count) >= 0)
+			break;
+		else if (count < *n)
+			break;
+		else
+		{
+			temp_dest = (char *)my_malloc((*n + BUFFER_LEN) * sizeof(char));
+			my_strncpy(*lineptr,temp_dest, *n);
+			*n += BUFFER_LEN;
+			// don't forget to free(*lineptr);
+			*lineptr = temp_dest;
+			i = my_read(fd, *lineptr + count, BUFFER_LEN);
+			count += i;
+		}
+	}
+	if (count < *n) //EOF
+		lineptr[0][count] = '\0'; //check if not count - 1 actually ?
+	return (count);
+}
 
 [[noreturn]] void my_exit(int status)
 {
@@ -230,7 +230,8 @@ int my_printf(const char *format, ...)
 	return (count);
 }
 
-static void *program_break = 0;
+static void	*program_break = (void *)0;
+static int	heap_size = 0;
 
 void	*my_sbrk(int increment)
 {
@@ -247,22 +248,38 @@ void	*my_sbrk(int increment)
 				: "rdi"
 				);
 	}
-
 	old_brk = program_break;
-
+	program_break += increment;
+	heap_size += increment;
 	__asm__ volatile (
 			"mov $12, %%rax\n"
 			"syscall\n"
 			:
-			: "D"(increment)
+			: "D"(program_break)
 			:
 			);
-	program_break += increment;
 	return (old_brk);
 }
 
-void *my_malloc(my_size_t size)
+void	*my_malloc(my_size_t size)
 {
-	my_sbrk(size);
-	return (my_sbrk(0));
+	size = size + (8 - (size % 8)); // memory alignment on 8 bytes
+	return (my_sbrk(size));
+}
+
+void	my_free(void *ptr)
+{
+	(void)ptr;
+	my_sbrk(-heap_size);
+	heap_size = 0;
+	program_break = 0;
+}
+
+void	*my_realloc(void *ptr, size_t size)
+{
+	void	*new_pointer;
+
+	new_pointer = my_malloc(size);
+	my_strncpy(ptr, new_pointer, size); // will copy more than the original
+	return (new_pointer);
 }

@@ -2,13 +2,14 @@
 
 int	main(int argc, char **argv, char **envp)
 {
-	void	*a;
-	a = my_sbrk(0);
-	my_printf("Voici %d",(int)a);
-	*a = 1; //this should error
-	my_sbrk(10);
-	*a = 1; //this should not
-	my_printf("Voici %d",(int)my_sbrk(0));
+	int	fd;
+	int	n[1];
+	char 	*lineptr;
+	
+	lineptr = (char *)my_malloc(BUFFER_LEN * sizeof(char));
+	*n = BUFFER_LEN;
+	// to test getline
+
 	if (argc < 2)
 	{
 		my_puts("Error: missing --user <username> argument\n");

@@ -17,5 +17,8 @@ my_ssize_t	my_getline(char **lineptr, my_size_t *n, int fd);
 [[noreturn]] void	my_exit(int status);
 int	my_printf(const char *format, ...);
 void	*my_sbrk(int increment);
+void	*my_malloc(my_size_t size);
+void	my_free(void *ptr);
+void	*my_realloc(void *ptr, size_t size);
 
 #endif
