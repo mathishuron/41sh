@@ -173,7 +173,7 @@ void my_strncpy(char *src, char *dst, int n)
 //	return (count);
 //}
 
-[[noreturn]] void exit(int status)
+[[noreturn]] void my_exit(int status)
 {
 	__asm__ volatile(
 			"syscall"

@@ -12,7 +12,7 @@ int my_strcmp(const char *s1, const char *s2);
 int my_strncmp(const char *s1, const char *s2, my_size_t n);
 my_ssize_t my_read(int fd, void *buf, my_size_t len);
 my_ssize_t      my_getline(char **lineptr, my_size_t *n, int fd);
-[[noreturn]] void exit(int status);
+[[noreturn]] void my_exit(int status);
 int my_printf(const char *format, ...);
 
 #endif
