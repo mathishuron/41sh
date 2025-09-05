@@ -1,43 +1,57 @@
 #include "../include/libc/libc.h"
 
+void	remove_newline(char *buf)
+{
+	int	i;
+
+	i = 0;
+	while (buf[i] != '\0')
+	{
+		if (buf[i] == '\n')
+		{
+			buf[i] = '\0';
+			break;
+		}
+		i++;
+	}
+}
+
 int	main(int argc, char **argv, char **envp)
 {
+	char	*input_command[1];
 	my_size_t	n[1];
-	char 	*lineptr;
-	my_ssize_t	char_read;
-	
-	lineptr = (char *)my_malloc(BUFFER_LEN * sizeof(char));
-	*n = BUFFER_LEN;
-	my_printf("Write there : >");
-	char_read = my_getline(&lineptr, n, 0);
-	my_printf("\nBuffer filled with : %s", lineptr);
-	my_printf("\nBuffer total size : %d", n[1]);
-	my_printf("\nCharacter written : %d", char_read);
-	my_free(lineptr);
-	my_printf("\nHook here for no heap");
+	int	i;
 
-	if (argc < 2)
+
+	while (1)
 	{
-		my_puts("Error: missing --user <username> argument\n");
-		my_exit(1);
-	}
-	else if (my_strcmp(argv[1],"--user") != 0)
-	{
-		my_puts("Error: unrecognized argument '");
-		my_puts(argv[1]);
-		my_puts("'\n");
-		my_exit(1);
-	}
-	else if (argc < 3)
-	{
-		my_puts("Error: missing value for --user\n");
-		my_exit(1);
-	}
-	else
-	{
-		my_puts("Hello ");
-		my_puts(argv[2]);
-		my_puts("\n");
+		*input_command = (char *)my_malloc(BUFFER_LEN * sizeof(char));
+		n[0] = BUFFER_LEN;
+		my_puts("M@ster, give me your input >");
+		my_getline(input_command, n, 0);
+		i = 0;
+		remove_newline(*input_command);
+		while (input_command[0][i] == ' ' && input_command[0][i] != '\0')
+			i++;
+		if (my_strncmp(input_command[0] + i, "exit", 4) == 0)
+		{
+			my_free(*input_command);
+			my_exit(0);
+		}
+		else if (my_strncmp(input_command[0] + i, "echo ", 5) == 0)
+		{
+			i = i + 4;
+			while (input_command[0][i] == ' ')
+				i++;
+			my_puts(input_command[0] + i);
+			my_puts("\n");
+			my_free(*input_command);
+		}
+		else
+		{
+			my_puts("unknown command\n");
+			my_free(*input_command);
+		}
 	}
 	return (0);
 }
