@@ -2,13 +2,19 @@
 
 int	main(int argc, char **argv, char **envp)
 {
-	int	fd;
-	int	n[1];
+	my_size_t	n[1];
 	char 	*lineptr;
+	my_ssize_t	char_read;
 	
 	lineptr = (char *)my_malloc(BUFFER_LEN * sizeof(char));
 	*n = BUFFER_LEN;
-	// to test getline
+	my_printf("Write there : >");
+	char_read = my_getline(&lineptr, n, 0);
+	my_printf("\nBuffer filled with : %s", lineptr);
+	my_printf("\nBuffer total size : %d", n[1]);
+	my_printf("\nCharacter written : %d", char_read);
+	my_free(lineptr);
+	my_printf("\nHook here for no heap");
 
 	if (argc < 2)
 	{

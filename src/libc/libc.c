@@ -1,7 +1,5 @@
 #include "../include/libc/libc.h"
 
-#define BUFFER_LEN 3
-
 my_ssize_t my_write(int fd, const void *str, my_size_t len)
 {
 	long ret;

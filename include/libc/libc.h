@@ -3,6 +3,8 @@
 
 #include <unistd.h>
 
+#define BUFFER_LEN 3
+
 typedef unsigned long long	my_size_t;
 typedef long long	my_ssize_t;
 
