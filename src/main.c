@@ -22,7 +22,6 @@ int	main(int argc, char **argv, char **envp)
 	my_size_t	n[1];
 	int	i;
 
-
 	while (1)
 	{
 		*input_command = (char *)my_malloc(BUFFER_LEN * sizeof(char));
