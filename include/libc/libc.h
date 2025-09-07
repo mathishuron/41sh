@@ -22,5 +22,9 @@ void	*my_sbrk(int increment);
 void	*my_malloc(my_size_t size);
 void	my_free(void *ptr);
 void	*my_realloc(void *ptr, size_t size);
+int	my_execve(const char *pathname, char *const argv[], char *const envp[]);
+int	my_fork(void);
+int	my_getpid(void);
+int	my_wait4(int pid, int *wstatus);
 
 #endif

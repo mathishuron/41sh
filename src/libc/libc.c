@@ -148,7 +148,7 @@ my_ssize_t	my_getline(char **lineptr, my_size_t *n, int fd)
 				*lineptr = temp_dest;
 
 			}
-			lineptr[0][pos + 1] = '\0'; // not pos ? to check
+			lineptr[0][pos + 1] = '\0';
 			break;
 		}
 		else if (my_pos('\0', *lineptr, count) >= 0)
@@ -167,7 +167,7 @@ my_ssize_t	my_getline(char **lineptr, my_size_t *n, int fd)
 		}
 	}
 	if (count < *n) //EOF
-		lineptr[0][count] = '\0'; //check if not count - 1 actually ?
+		lineptr[0][count] = '\0';
 	return (count);
 }
 
@@ -280,4 +280,55 @@ void	*my_realloc(void *ptr, size_t size)
 	new_pointer = my_malloc(size);
 	my_strncpy(ptr, new_pointer, size); // will copy more than the original
 	return (new_pointer);
+}
+
+int	my_execve(const char *pathname, char *const argv[], char *const envp[])
+{
+	int	ret;
+	__asm__ volatile (
+			"syscall\n"
+			:"=a"(ret)
+			:"a"(59), "D"(pathname), "S"(argv), "d"(envp)
+			:
+			);
+	return (ret);
+}
+
+int	my_fork(void)
+{
+	int	ret;
+	__asm__ volatile (
+			"syscall\n"
+			:"=a"(ret)
+			:"a"(57)
+			:);
+	return (ret);
+}
+
+int	my_getpid(void)
+{
+	int	ret;
+	__asm__ volatile (
+			"syscall\n"
+			:"=a"(ret)
+			:"a"(39)
+			:);
+	return (ret);
+}
+
+int	my_wait4(int pid, int *wstatus)
+{
+	int	ret;
+
+	__asm__ volatile (
+			"xor %%r10, %%r10\n"
+			"syscall\n"
+			:"=a"(ret)
+			:"a"(61),
+			"D"(pid),
+			"S"(wstatus),
+			"d"(0)
+			:
+			);
+	return (ret);
 }
