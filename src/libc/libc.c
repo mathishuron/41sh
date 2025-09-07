@@ -332,3 +332,40 @@ int	my_wait4(int pid, int *wstatus)
 			);
 	return (ret);
 }
+
+int	my_pipe(int *pipefd)
+{
+	int	ret;
+
+	__asm__ volatile (
+			"syscall\n"
+			:"=a"(ret)
+			:"a"(22),
+			"D"(pipefd)
+			:);
+	return (ret);
+}
+
+int	my_dup2(int oldfd, int newfd)
+{
+	int	ret;
+
+	__asm__ volatile (
+			"syscall\n"
+			:"=a"(ret)
+			:"a"(33),
+			"D"(oldfd),
+			"S"(newfd)
+			:
+			);
+	return (ret);
+}
+
+void	my_close(int fd)
+{
+	__asm__ volatile (
+			"syscall\n"
+			:
+			:"a"(3), "D"(fd)
+			:);
+}

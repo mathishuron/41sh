@@ -18,38 +18,75 @@ void	remove_newline(char *buf)
 
 int	main(int argc, char **argv, char **envp)
 {
+	int	pipefd[2];
 	int	fpid;
-	int	w;
-	int	wstatus[1];
-
-	if (argc  >= 2)
+	int	split;
+	
+	split = 0;
+	while (split < argc)
 	{
-		my_printf("Program name: %s\n", argv[1]);
-		my_printf("Nb args: %d\n", argc - 2);
-		my_printf("PID: %d\n", my_getpid());
-		fpid = my_fork();
-		if (fpid == 0)
+		if (my_strcmp(argv[split],"--") == 0)
 		{
-			my_printf("Child PID: %d\n", my_getpid());
-			my_execve(argv[1], argv + 1, envp);
+			argv[split] = (void *)0;
+			break;
 		}
-		else
-		{
-			w = my_wait4(0, wstatus);
-			if (wstatus[0] == 139)
-			{
-				my_printf("Segmentation fault (core dumped)\n");
-				my_printf("Program terminated.\n");
-				my_printf("Status: Segmentation fault\n");
-			}
-			else
-			{
-				my_printf("Program terminated.\n");
-				my_printf("Status: OK\n");
-			}
-		}
+		split++;
 	}
 
+	my_pipe(pipefd);
+	fpid = my_fork();
+
+	if (fpid == 0)
+	{
+		my_close(pipefd[0]);
+		my_dup2(pipefd[1],1);
+		my_execve(argv[1], argv + 1, envp);
+	}
+	else
+	{
+		my_close(pipefd[1]);
+		my_dup2(pipefd[0],0);
+		my_wait4(0,0);
+		my_execve(argv[split + 1], argv + split + 1, envp);
+	}
+
+
+//	Exercice 7 : Execution
+//
+//	int	fpid;
+//	int	w;
+//	int	wstatus[1];
+//
+//	if (argc  >= 2)
+//	{
+//		my_printf("Program name: %s\n", argv[1]);
+//		my_printf("Nb args: %d\n", argc - 2);
+//		my_printf("PID: %d\n", my_getpid());
+//		fpid = my_fork();
+//		if (fpid == 0)
+//		{
+//			my_printf("Child PID: %d\n", my_getpid());
+//			my_execve(argv[1], argv + 1, envp);
+//		}
+//		else
+//		{
+//			w = my_wait4(0, wstatus);
+//			if (wstatus[0] == 139)
+//			{
+//				my_printf("Segmentation fault (core dumped)\n");
+//				my_printf("Program terminated.\n");
+//				my_printf("Status: Segmentation fault\n");
+//			}
+//			else
+//			{
+//				my_printf("Program terminated.\n");
+//				my_printf("Status: OK\n");
+//			}
+//		}
+//	}
+
+//	Exercice 6 : Basic Shell
+//
 //	char	*input_command[1];
 //	my_size_t	n[1];
 //	char	*exec_arg[2];

@@ -26,5 +26,8 @@ int	my_execve(const char *pathname, char *const argv[], char *const envp[]);
 int	my_fork(void);
 int	my_getpid(void);
 int	my_wait4(int pid, int *wstatus);
+int	my_pipe(int *fildes);
+int	my_dup2(int oldfd, int newfd);
+void	my_close(int fd);
 
 #endif
