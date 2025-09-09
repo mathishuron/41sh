@@ -59,6 +59,16 @@ int	my_putnbr(int n)
 	return (i);
 }
 
+int	my_strlen(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i] != '\0')
+		i++;
+	return (i);
+}
+
 int	my_strcmp(const char *s1, const char *s2)
 {
 	int	i;
@@ -85,14 +95,10 @@ my_ssize_t	my_read(int fd, void *buf, my_size_t len)
 {
 	long ret;
 	__asm__ volatile (
-        "mov $0, %%rax\n"   // syscall: read
-        "mov %1, %%rdi\n"   // fd
-        "mov %2, %%rsi\n"   // buf
-        "mov %3, %%rdx\n"   // len
         "syscall\n"
-        : "=a"(ret)
-        : "r"((long)fd), "r"(buf), "r"(len)
-        : "rdi", "rsi", "rdx"
+	:"=a"(ret)
+	:"a"(0),"D"(fd),"S"(buf),"d"(len)
+	:
     );
     return ret;
 }
@@ -123,6 +129,38 @@ void my_strncpy(char *src, char *dst, int n)
 	}
 }
 
+my_ssize_t	my_getfile(char **lineptr, my_size_t *n, int fd)
+{
+	my_ssize_t	i;
+	my_ssize_t	count;
+	char		*temp_dest;
+
+	count = 0;
+	i = my_read(fd, *lineptr + count, BUFFER_LEN);
+	count += i;
+
+	while (i != 0)
+	{
+		if (my_pos('\0', *lineptr, count) >= 0)
+			break;
+		else if (count < *n)
+			break;
+		else
+		{
+			temp_dest = (char *)my_malloc((*n + BUFFER_LEN) * sizeof(char));
+			my_strncpy(*lineptr,temp_dest, *n);
+			*n += BUFFER_LEN;
+			// don't forget to free(*lineptr);
+			*lineptr = temp_dest;
+			i = my_read(fd, *lineptr + count, BUFFER_LEN);
+			count += i;
+		}
+	}
+	if (count < *n) //EOF
+		lineptr[0][count] = '\0';
+	return (count);
+}
+
 my_ssize_t	my_getline(char **lineptr, my_size_t *n, int fd)
 {
 	my_ssize_t	i;
@@ -149,6 +187,7 @@ my_ssize_t	my_getline(char **lineptr, my_size_t *n, int fd)
 
 			}
 			lineptr[0][pos + 1] = '\0';
+			count = pos + 1;
 			break;
 		}
 		else if (my_pos('\0', *lineptr, count) >= 0)
@@ -265,9 +304,8 @@ void	*my_malloc(my_size_t size)
 	return (my_sbrk(size));
 }
 
-void	my_free(void *ptr)
+void	my_free(void)
 {
-	(void)ptr;
 	my_sbrk(-heap_size);
 	heap_size = 0;
 	program_break = 0;
@@ -368,4 +406,15 @@ void	my_close(int fd)
 			:
 			:"a"(3), "D"(fd)
 			:);
+}
+
+int	my_open(const char *path, int flags)
+{
+	int	ret;
+	__asm__ volatile (
+			"syscall\n"
+			:"=a"(ret)
+			:"a"(2), "D"(path), "S"(flags), "d"(0)
+			:);
+	return (ret);
 }

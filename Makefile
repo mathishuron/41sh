@@ -23,7 +23,7 @@ ASM_OBJ = $(BUILD_DIR)/$(ASM_SRC:.asm=.o)
 C_OBJ = $(BUILD_DIR)/$(C_SRC:.c=.o)
 LIB_OBJ = $(BUILD_DIR)/$(LIB_SRC:.c=.o)
 
-TARGET = 0x41sh
+TARGET = pwman
 
 # Default target
 all: $(TARGET)
