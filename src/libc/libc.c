@@ -2,18 +2,14 @@
 
 my_ssize_t my_write(int fd, const void *str, my_size_t len)
 {
-	long ret;
+	my_ssize_t	ret;
 	__asm__ volatile (
-        "mov $1, %%rax\n"   // syscall: write hello
-        "mov %1, %%rdi\n"   // fd
-        "mov %2, %%rsi\n"   // str
-        "mov %3, %%rdx\n"   // len
-        "syscall\n"
-        : "=a"(ret)
-        : "r"((long)fd), "r"(str), "r"(len)
-        : "rdi", "rsi", "rdx"
-    );
-    return ret;
+			"syscall\n"
+			:"=a"(ret)
+			:"a"(1), "D"(fd), "S"(str), "d"(len)
+			:
+			);
+	return (ret);
 }
 
 int	my_putchar(int c)
@@ -414,7 +410,7 @@ int	my_open(const char *path, int flags)
 	__asm__ volatile (
 			"syscall\n"
 			:"=a"(ret)
-			:"a"(2), "D"(path), "S"(flags), "d"(0)
+			:"a"(2), "D"(path), "S"(flags), "d"(448)
 			:);
 	return (ret);
 }

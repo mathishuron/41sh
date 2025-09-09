@@ -1,21 +1,5 @@
 #include "../include/libc/libc.h"
 
-void	init_base(void)
-{
-	//create file and set an entry as master password
-	return;
-}
-
-int	check_password(char *file)
-{
-
-}
-
-void	add_entry(void)
-{
-	return;
-}
-
 char	*get_base(char *file)
 {
 	int	fd;
@@ -74,30 +58,112 @@ char	*retrieve_password(char *file, char *entry)
 	return (0);
 }
 
-int	main(int argc, char **argv, char **envp)
+void	add_entry(char *file, char *entry)
 {
 	int	fd;
 	int	bytes_read;
 	char	*buffer[1];
 	my_size_t	buffer_size[1];
 	
+	if (retrieve_password(file, entry) == 0)
+	{
+		fd = my_open(file, O_APPEND| O_WRONLY);
+		if (fd == -1)
+		{
+			my_printf("Error opening file\n");
+			my_exit(1);
+		}
+		my_write(fd, entry, my_strlen(entry));
+		my_write(fd, " ", 1);
+		buffer[0] = (char *)my_malloc(BUFFER_LEN * sizeof(char));
+		buffer_size[0] = BUFFER_LEN;
+		my_printf("Enter password for entry %s : ", entry);
+		bytes_read = my_getline(buffer, buffer_size, 0);
+		my_write(fd, buffer[0], bytes_read);
+		my_printf("Saved successfully.\n");
+		my_close(fd);
+	}
+	else
+		my_printf("Error : entry already exists\n");
+
+	return;
+}
+
+void	init_base(char *file)
+{
+	if (retrieve_password(file, "master-password") == 0)
+		add_entry(file, "master-password");
+	else
+		my_printf("Database already exists\n");
+	return;
+}
+
+void	check_password(char *file, char **password, my_size_t *password_size)
+{
+	char	*db_pass;
+
+	my_printf("Enter master password : ");
+	my_getline(password, password_size, 0);
+	db_pass = retrieve_password(file, "master-password");
+	if (db_pass != 0 && my_strncmp(db_pass, password[0], my_strlen(db_pass)) == 0)
+		return;
+	else
+	{
+		my_printf("Wrong password\n");
+		my_free();
+		my_exit(1);
+	}
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	char	*password[1];
+	my_size_t	password_size[1];
+	
+	password[0] = (char *)my_malloc(BUFFER_LEN * sizeof(char));
+	password_size[0] = BUFFER_LEN;
+
 	if (argc >= 2)
 	{
 		if (my_strcmp(argv[1], "get") == 0)
 		{
 			if (argc < 4)
 				my_printf("Not enough argument for get\n");
-			else if (retrieve_password(argv[2], argv[3]) == 0)
-				my_printf("Entry not found\n");
 			else
-				my_printf(retrieve_password(argv[2], argv[3]));
+			{
+				check_password(argv[2], password, password_size);
+				if (retrieve_password(argv[2], argv[3]) == 0)
+					my_printf("Entry not found\n");
+				else
+					my_printf(retrieve_password(argv[2], argv[3]));
+			}
 		}
 		else if (my_strcmp(argv[1], "list") == 0)
 		{
 			if (argc < 3)
 				my_printf("Missing DB name for list");
 			else
+			{
+				check_password(argv[2], password, password_size);
 				my_printf(get_base(argv[2]));
+			}
+		}
+		else if (my_strcmp(argv[1], "add") == 0)
+		{
+			if (argc < 4)
+				my_printf("Not enough arguments for add");
+			else
+			{
+				check_password(argv[2], password, password_size);
+				add_entry(argv[2], argv[3]);
+			}
+		}
+		else if (my_strcmp(argv[1], "init") == 0)
+		{
+			if (argc < 3)
+				my_printf("Missing database name\n");
+			else
+				init_base(argv[2]);
 		}
 
 	}
