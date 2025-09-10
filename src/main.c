@@ -150,7 +150,7 @@ int	main(int argc, char **argv, char **envp)
 		if (my_strcmp(argv[1], "get") == 0)
 		{
 			if (argc < 4)
-				my_printf("Not enough argument for get\n");
+				my_printf("Bad usage, use \"get <vault_name> <site>\"\n");
 			else
 			{
 				check_password(argv[2], password, password_size);
@@ -163,7 +163,7 @@ int	main(int argc, char **argv, char **envp)
 		else if (my_strcmp(argv[1], "list") == 0)
 		{
 			if (argc < 3)
-				my_printf("Missing DB name for list");
+				my_printf("Bad usage, use \"list <vault_name>\"\n");
 			else
 			{
 				check_password(argv[2], password, password_size);
@@ -173,7 +173,7 @@ int	main(int argc, char **argv, char **envp)
 		else if (my_strcmp(argv[1], "add") == 0)
 		{
 			if (argc < 4)
-				my_printf("Not enough arguments for add");
+				my_printf("Bad usage, use \"add <vault_name> <site>\"\n");
 			else
 			{
 				check_password(argv[2], password, password_size);
@@ -183,19 +183,21 @@ int	main(int argc, char **argv, char **envp)
 		else if (my_strcmp(argv[1], "init") == 0)
 		{
 			if (argc < 3)
-				my_printf("Missing database name\n");
+				my_printf("Bad usage, use \"init <vault_name>\"\n");
 			else
 				init_base(argv[2]);
 		}
 		else
-			my_printf("Unknown command\n");
-
+		{
+			my_printf("Unknown command : %s\n", argv[1]);
+			my_printf("Commands: init, add, list, get, test\n");
+		}
 	}
 	else
 	{
-		my_printf("Not enough arguments\n");
+		my_printf("Usage: %s <command> [args...]\n", argv[0]);
+		my_printf("Commands: init, add, list, get\n");
 	}
 	my_free();
 	return (0);
-
 }
