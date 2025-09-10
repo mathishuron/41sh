@@ -1,5 +1,26 @@
 #include "../include/libc/libc.h"
 
+char	*ROT13(char *str)
+{
+	int	i;
+	char	*rot;
+
+	i = 0;
+
+	rot = (char *)my_malloc(my_strlen(str) * sizeof(char));
+	while (str[i] != '\0')
+	{
+		if (str[i] >= 'a' && str[i] <= 'z')
+			rot[i] = (((str[i] - 'a') + 13 ) % 26) + 'a';
+		else if (str[i] >= 'A' && str[i] <= 'Z')
+			rot[i] = (((str[i] - 'A') + 13 ) % 26) + 'A';
+		else
+			rot[i] = str[i];
+		i++;
+	}
+	return (rot);
+}
+
 char	*get_base(char *file)
 {
 	int	fd;
@@ -17,7 +38,7 @@ char	*get_base(char *file)
 	}
 	bytes_read = my_getfile(buffer, buffer_size, fd);
 	my_close(fd);
-	return (buffer[0]);
+	return (ROT13(buffer[0]));
 
 }
 
@@ -34,6 +55,7 @@ char	*retrieve_password(char *file, char *entry)
 	buffer[0] = get_base(file);
 
 	i = 0;
+	size_password = 0;
 	while (buffer[0][i] != '\0')
 	{
 		len_entry = my_strlen(entry);
@@ -73,13 +95,13 @@ void	add_entry(char *file, char *entry)
 			my_printf("Error opening file\n");
 			my_exit(1);
 		}
-		my_write(fd, entry, my_strlen(entry));
+		my_write(fd, ROT13(entry), my_strlen(entry));
 		my_write(fd, " ", 1);
 		buffer[0] = (char *)my_malloc(BUFFER_LEN * sizeof(char));
 		buffer_size[0] = BUFFER_LEN;
 		my_printf("Enter password for entry %s : ", entry);
 		bytes_read = my_getline(buffer, buffer_size, 0);
-		my_write(fd, buffer[0], bytes_read);
+		my_write(fd, ROT13(buffer[0]), bytes_read);
 		my_printf("Saved successfully.\n");
 		my_close(fd);
 	}
@@ -165,6 +187,8 @@ int	main(int argc, char **argv, char **envp)
 			else
 				init_base(argv[2]);
 		}
+		else
+			my_printf("Unknown command\n");
 
 	}
 	else
