@@ -235,10 +235,6 @@ int	main(int argc, char **argv, char **envp)
 			else
 				init_base(argv[2]);
 		}
-		else if (my_strcmp(argv[1], "test") == 0)
-		{
-			test();
-		}
 
 	}
 	else
