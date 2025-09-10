@@ -137,6 +137,35 @@ void	check_password(char *file, char **password, my_size_t *password_size)
 	}
 }
 
+void	generate(void)
+{
+	int	fd;
+	int	i;
+	char	buffer[1];
+	char	password[11];
+
+	password[10] = '\0';
+	i = 0;
+	fd = my_open("/dev/random",O_RDONLY);
+	if (fd < 0)
+	{
+		my_printf("Error accessing random generator on system\n");
+		my_exit(1);
+	}
+	while (i < 10)
+	{
+		my_read(fd, buffer, 1);
+		if ((buffer[0] >= 'a' && buffer[0] <= 'z') || (buffer[0] >= '0' && buffer[0] <= '9'))
+		{
+			password[i] = buffer[0];
+			i++;
+		}
+	}
+	my_printf("Your randomly generated password : %s\n", password);
+}
+
+
+
 int	main(int argc, char **argv, char **envp)
 {
 	char	*password[1];
@@ -187,16 +216,19 @@ int	main(int argc, char **argv, char **envp)
 			else
 				init_base(argv[2]);
 		}
+		else if (my_strcmp(argv[1], "generate") == 0)
+			generate();
+
 		else
 		{
 			my_printf("Unknown command : %s\n", argv[1]);
-			my_printf("Commands: init, add, list, get, test\n");
+			my_printf("Commands: init, add, list, get, generate\n");
 		}
 	}
 	else
 	{
 		my_printf("Usage: %s <command> [args...]\n", argv[0]);
-		my_printf("Commands: init, add, list, get\n");
+		my_printf("Commands: init, add, list, get, generate\n");
 	}
 	my_free();
 	return (0);
