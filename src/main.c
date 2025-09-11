@@ -7,7 +7,7 @@ char	*ROT13(char *str)
 
 	i = 0;
 
-	rot = (char *)my_malloc(my_strlen(str + 1) * sizeof(char));
+	rot = (char *)my_malloc((my_strlen(str) + 1) * sizeof(char));
 	while (str[i] != '\0')
 	{
 		if (str[i] >= 'a' && str[i] <= 'z')
