@@ -7,7 +7,7 @@ char	*ROT13(char *str)
 
 	i = 0;
 
-	rot = (char *)my_malloc(my_strlen(str) * sizeof(char));
+	rot = (char *)my_malloc(my_strlen(str + 1) * sizeof(char));
 	while (str[i] != '\0')
 	{
 		if (str[i] >= 'a' && str[i] <= 'z')
@@ -18,6 +18,7 @@ char	*ROT13(char *str)
 			rot[i] = str[i];
 		i++;
 	}
+	rot[my_strlen(str)] = '\0';
 	return (rot);
 }
 
@@ -83,10 +84,12 @@ char	*retrieve_password(char *file, char *entry)
 void	add_entry(char *file, char *entry)
 {
 	int	fd;
+	int	i;
 	int	bytes_read;
 	char	*buffer[1];
 	my_size_t	buffer_size[1];
 	
+	i = 0;
 	if (retrieve_password(file, entry) == 0)
 	{
 		fd = my_open(file, O_APPEND| O_WRONLY);
@@ -101,6 +104,17 @@ void	add_entry(char *file, char *entry)
 		buffer_size[0] = BUFFER_LEN;
 		my_printf("Enter password for entry %s : ", entry);
 		bytes_read = my_getline(buffer, buffer_size, 0);
+		while (i < bytes_read)
+		{
+			if (buffer[0][i] == ' ')
+			{
+				my_printf("Password cannot contain space\n");
+				my_close(fd);
+				my_free();
+				my_exit(1);
+			}
+			i++;
+		}
 		my_write(fd, ROT13(buffer[0]), bytes_read);
 		my_printf("Saved successfully.\n");
 		my_close(fd);
